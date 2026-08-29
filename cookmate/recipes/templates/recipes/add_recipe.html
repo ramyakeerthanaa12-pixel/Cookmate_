@@ -1,0 +1,52 @@
+{% extends 'recipes/base.html' %}
+
+{% block content %}
+
+<div class="card p-4 shadow">
+    <h3 class="mb-3">➕ Add Recipe</h3>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <input type="text" name="title" class="form-control mb-3" placeholder="Title" required>
+
+        <textarea name="ingredients" class="form-control mb-3" placeholder="Ingredients" required></textarea>
+
+        <textarea name="instructions" class="form-control mb-3" placeholder="Instructions" required></textarea>
+
+        <select name="category" class="form-control mb-3" required>
+            <option value="">Select Category</option>
+            <option value="veg">Veg</option>
+            <option value="non-veg">Non-Veg</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Snacks">Snacks</option>
+        </select>
+
+        <input type="file" name="image" class="form-control mb-3">
+
+        <button class="btn btn-success w-100">Save Recipe</button>
+    </form>
+
+    <button id="ai-fill" class="btn btn-warning mt-3 w-100">🤖 Generate with AI</button>
+</div>
+
+<script>
+document.getElementById("ai-fill").addEventListener("click", function() {
+    let ingredients = prompt("Enter ingredients:");
+
+    fetch("/ai/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: `ingredients=${ingredients}`
+    })
+    .then(res => res.text())
+    .then(data => {
+        document.querySelector("[name='instructions']").value = data;
+    });
+});
+</script>
+
+{% endblock %}

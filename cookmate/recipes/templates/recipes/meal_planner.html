@@ -1,0 +1,540 @@
+{% extends 'recipes/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid py-3">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>🍽 Meal Planner</h3>
+
+    <div class="d-flex gap-2">
+
+        <select onchange="switchPlan(this.value)" class="form-select">
+            {% for p in plans %}
+            <option value="{{ p.id }}" {% if p.id == plan.id %}selected{% endif %}>
+                {{ p.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn btn-warning" onclick="autoFillMeals()">⚡ Auto</button>
+        <button class="btn btn-success" onclick="getGrocery()">🛒 Grocery</button>
+
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- LEFT -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>Recipes</h5>
+
+            <div class="recipe-list">
+                {% for recipe in recipes %}
+                <div class="recipe-item"
+                     draggable="true"
+                     data-id="{{ recipe.id }}"
+                     data-name="{{ recipe.title }}">
+                    {{ recipe.title }}
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-md-9">
+        <div class="row">
+            {% for day in days %}
+            <div class="col-md-4 mb-3">
+                <div class="card p-3 shadow-sm">
+                    <h6 class="text-center fw-bold">{{ day }}</h6>
+
+                    {% for meal in meal_types %}
+                    <div class="drop-box"
+                         data-day="{{ day }}"
+                         data-meal="{{ meal }}">
+                        <small class="text-muted">{{ meal }}</small>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- CHART + GROCERY -->
+<div class="row mt-4">
+
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>📊 Weekly Calories</h5>
+            <canvas id="calorieChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>🛒 Grocery</h5>
+            <div id="allGrocery">No items</div>
+            <p class="fw-bold mt-2">Total: ₹<span id="totalPrice">0</span></p>
+        </div>
+    </div>
+
+</div>
+
+<!-- CART -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>📋 Cart</h5>
+            <div id="cartItems">Empty</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<style>
+body{ background:#f5f7fb; }
+
+.recipe-list{ max-height:500px; overflow-y:auto; }
+
+.recipe-item{
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:8px;
+    background:#f1f3f5;
+    cursor:grab;
+}
+
+.drop-box{
+    border:2px dashed #ccc;
+    border-radius:10px;
+    padding:15px;
+    margin-top:10px;
+    min-height:80px;
+    text-align:center;
+}
+
+.drop-box.drag-over{
+    background:#e3f2fd;
+}
+
+.meal-item{
+    background:#0d6efd;
+    color:white;
+    padding:8px;
+    border-radius:8px;
+    margin-top:8px;
+}
+</style>
+
+{% extends 'recipes/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid py-3">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>🍽 Meal Planner</h3>
+
+    <div class="d-flex gap-2">
+
+        <select onchange="switchPlan(this.value)" class="form-select">
+            {% for p in plans %}
+            <option value="{{ p.id }}" {% if p.id == plan.id %}selected{% endif %}>
+                {{ p.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn btn-warning" onclick="autoFillMeals()">⚡ Auto</button>
+        <button class="btn btn-success" onclick="getGrocery()">🛒 Grocery</button>
+
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- LEFT -->
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm">
+            <h5>Recipes</h5>
+
+            <div class="recipe-list">
+                {% for recipe in recipes %}
+                <div class="recipe-item"
+                     draggable="true"
+                     data-id="{{ recipe.id }}"
+                     data-name="{{ recipe.title }}">
+                    {{ recipe.title }}
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-md-9">
+        <div class="row">
+            {% for day in days %}
+            <div class="col-md-4 mb-3">
+                <div class="card p-3 shadow-sm">
+                    <h6 class="text-center fw-bold">{{ day }}</h6>
+
+                    {% for meal in meal_types %}
+                    <div class="drop-box"
+                         data-day="{{ day }}"
+                         data-meal="{{ meal }}">
+                        <small class="text-muted">{{ meal }}</small>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- CHART + GROCERY -->
+<div class="row mt-4">
+
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>📊 Weekly Calories</h5>
+            <canvas id="calorieChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>🛒 Grocery</h5>
+            <div id="allGrocery">No items</div>
+            <p class="fw-bold mt-2">Total: ₹<span id="totalPrice">0</span></p>
+        </div>
+    </div>
+
+</div>
+
+<!-- CART -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5>📋 Cart</h5>
+            <div id="cartItems">Empty</div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<style>
+body{ background:#f5f7fb; }
+
+.recipe-list{ max-height:500px; overflow-y:auto; }
+
+.recipe-item{
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:8px;
+    background:#f1f3f5;
+    cursor:grab;
+}
+
+.drop-box{
+    border:2px dashed #ccc;
+    border-radius:10px;
+    padding:15px;
+    margin-top:10px;
+    min-height:80px;
+    text-align:center;
+}
+
+.drop-box.drag-over{
+    background:#e3f2fd;
+}
+
+.meal-item{
+    background:#0d6efd;
+    color:white;
+    padding:8px;
+    border-radius:8px;
+    margin-top:8px;
+}
+</style>
+
+<script>
+
+let PLAN_ID = "{{ plan.id }}";
+let chart = null;
+
+/* CSRF */
+function getCSRF(){
+    return document.cookie.split(';')
+        .find(c => c.trim().startsWith('csrftoken='))
+        ?.split('=')[1] || '';
+}
+
+/* SWITCH PLAN */
+function switchPlan(id){
+    window.location.href = `?plan_id=${id}`;
+}
+
+/* DRAG */
+document.querySelectorAll(".recipe-item").forEach(item=>{
+    item.addEventListener("dragstart", e=>{
+        e.dataTransfer.setData("id", item.dataset.id);
+        e.dataTransfer.setData("name", item.dataset.name);
+    });
+});
+
+/* DROP */
+/* DROP */
+
+document.querySelectorAll(".drop-box").forEach(box=>{
+
+    box.addEventListener("dragover", e=>{
+        e.preventDefault();
+        box.classList.add("drag-over");
+    });
+
+
+    box.addEventListener("dragleave", ()=>{
+        box.classList.remove("drag-over");
+    });
+
+
+    box.addEventListener("drop", e=>{
+
+        e.preventDefault();
+
+        box.classList.remove("drag-over");
+
+
+        let id = e.dataTransfer.getData("id");
+        let name = e.dataTransfer.getData("name");
+
+
+        // add without removing old recipe
+
+        let item = document.createElement("div");
+
+        item.className="meal-item";
+
+        item.innerHTML = `
+            ${name}
+            <button class="btn btn-sm btn-danger float-end"
+            onclick="this.parentElement.remove()">
+            ×
+            </button>
+        `;
+
+
+        box.appendChild(item);
+
+
+
+        fetch("{% url 'save_meal' %}",{
+
+            method:"POST",
+
+            headers:{
+                "X-CSRFToken":getCSRF(),
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+
+
+            body:new URLSearchParams({
+
+                recipe:id,
+
+                day:box.dataset.day,
+
+                meal_type:box.dataset.meal,
+
+                plan_id:PLAN_ID
+
+            })
+
+        })
+
+
+        .then(r=>r.json())
+
+
+        .then(data=>{
+
+            console.log(data);
+
+            loadCalories();
+
+            getGrocery();
+
+        })
+
+
+        .catch(err=>{
+
+            console.log(err);
+
+            alert("Save failed");
+
+        });
+
+
+    });
+
+});
+/* LOAD MEALS */
+function loadMeals(){
+    fetch("{% url 'get_meals' %}?plan_id="+PLAN_ID)
+    .then(r=>r.json())
+    .then(data=>{
+        document.querySelectorAll(".drop-box").forEach(b=>{
+            b.innerHTML = `<small>${b.dataset.meal}</small>`;
+        });
+
+        data.forEach(m=>{
+            let box = document.querySelector(
+                `[data-day="${m.day}"][data-meal="${m.meal_type}"]`
+            );
+            if(box){
+                box.innerHTML += `<div class="meal-item">${m.title}</div>`;
+            }
+        });
+    });
+}
+
+/* AUTO FILL */
+function autoFillMeals(){
+    fetch("{% url 'auto_fill_meals' %}",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/x-www-form-urlencoded",
+            "X-CSRFToken":getCSRF()
+        },
+        body:`plan_id=${PLAN_ID}`
+    })
+    .then(()=> {
+        loadMeals();
+        loadCalories();
+        getGrocery();
+    });
+}
+
+/* CALORIES */
+function loadCalories(){
+    fetch("{% url 'calories_data' %}?plan_id="+PLAN_ID)
+    .then(r=>r.json())
+    .then(data=>{
+        let labels = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+        let values = labels.map(d=>data[d]||0);
+
+        if(chart) chart.destroy();
+
+        chart = new Chart(document.getElementById("calorieChart"),{
+            type:'bar',
+            data:{
+                labels:labels,
+                datasets:[{label:'Calories',data:values}]
+            }
+        });
+    });
+}
+
+/* GROCERY */
+function getGrocery(){
+    fetch("{% url 'grocery' %}?plan_id="+PLAN_ID)
+    .then(r=>r.json())
+    .then(data=>{
+        let div = document.getElementById("allGrocery");
+
+        if(!data.all_items || data.all_items.length===0){
+            div.innerHTML="No items";
+            return;
+        }
+
+        div.innerHTML="";
+
+        data.all_items.forEach(i=>{
+            div.innerHTML += `
+                <div class="d-flex justify-content-between border p-2 mb-2">
+                    <span>${i.name} (${i.quantity} ${i.unit})</span>
+                    <button class="btn btn-sm btn-primary"
+                        onclick="buy('${i.name}','${i.unit}',${i.quantity},${i.price})">
+                        Add
+                    </button>
+                </div>
+            `;
+        });
+
+        document.getElementById("totalPrice").innerText = data.total_price;
+    });
+}
+
+/* BUY */
+function buy(name,unit,q,p){
+    fetch("{% url 'add_to_cart' %}",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/x-www-form-urlencoded",
+            "X-CSRFToken":getCSRF()
+        },
+        body:`name=${name}&unit=${unit}&quantity=${q}&price=${p}`
+    })
+    .then(()=>loadCart());
+}
+
+/* CART */
+function loadCart(){
+    fetch("{% url 'get_cart' %}")
+    .then(r=>r.json())
+    .then(data=>{
+        let div = document.getElementById("cartItems");
+
+        if(!data.cart.length){
+            div.innerHTML="<p class='text-muted'>Empty</p>";
+            return;
+        }
+
+        div.innerHTML = data.cart.map(i=>`
+            <div class="d-flex justify-content-between border p-2 mb-2">
+                <span>${i.name} (${i.quantity} ${i.unit})</span>
+                <span>₹${i.price}</span>
+            </div>
+        `).join('');
+    });
+}
+
+/* INIT */
+window.onload = ()=>{
+    loadMeals();
+    loadCalories();
+    getGrocery();
+    loadCart();
+};
+
+</script>
+
+{% endblock %}
+
+{% endblock %}

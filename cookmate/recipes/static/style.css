@@ -1,0 +1,23 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.search-box {
+    border-radius: 25px;
+    padding: 10px;
+}
+
+.recipe-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.recipe-card:hover {
+    transform: scale(1.03);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}

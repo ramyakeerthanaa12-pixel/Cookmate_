@@ -1,0 +1,36 @@
+{% extends 'recipes/base.html' %}
+
+{% block content %}
+
+<div class="card p-4 shadow">
+
+    <h2>Edit Recipe ✏️</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="text" name="title" value="{{ recipe.title }}" class="form-control mb-2">
+
+    <textarea name="ingredients" class="form-control mb-2">{{ recipe.ingredients }}</textarea>
+
+    <textarea name="instructions" class="form-control mb-2">{{ recipe.instructions }}</textarea>
+
+    <!-- 🔥 THIS FIXES YOUR ERROR -->
+    <select name="category" class="form-control mb-2" required>
+        <option value="">Select Category</option>
+        <option value="veg" {% if recipe.category == "veg" %}selected{% endif %}>Veg</option>
+        <option value="non-veg" {% if recipe.category == "non-veg" %}selected{% endif %}>Non-Veg</option>
+        <option value="dessert" {% if recipe.category == "dessert" %}selected{% endif %}>Dessert</option>
+    </select>
+
+    <!-- SHOW CURRENT IMAGE -->
+    {% if recipe.image %}
+        <img src="{{ recipe.image.url }}?{{ recipe.id }}" width="200" class="mb-2">
+    {% endif %}
+    <input type="file" name="image" class="form-control mb-2">
+
+    <button class="btn btn-success">Update</button>
+</form>
+</div>
+
+{% endblock %}
