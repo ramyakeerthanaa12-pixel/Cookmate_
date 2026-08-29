@@ -1,14 +1,4 @@
-{% extends 'recipes/base.html' %}
-
-{% block content %}
-
-<div class="card p-4 shadow">
-    <h3 class="mb-3">➕ Add Recipe</h3>
-
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <input type="text" name="title" class="form-control mb-3" placeholder="Title" required>
+"title" class="form-control mb-3" placeholder="Title" required>
 
         <textarea name="ingredients" class="form-control mb-3" placeholder="Ingredients" required></textarea>
 
